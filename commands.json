@@ -1,0 +1,215 @@
+[
+    {
+        "name": "help",
+        "type": 1,
+        "description": "help menu <3"
+    },
+    {
+        "name": "uwu",
+        "type": 1,
+        "description": "uwu <3"
+    },
+    {
+        "name": "credits",
+        "type": 1,
+        "description": "credits for callie <3"
+    },
+    {
+        "name": "invite",
+        "type": 1,
+        "description": "invite callie <3"
+    },
+    {
+        "name": "moomin",
+        "type": 1,
+        "description": "moomin <3"
+    },
+    {
+        "name": "blahaj",
+        "type": 1,
+        "description": "random blahaj <3"
+    },
+    {
+        "name": "cat-fact",
+        "type": 1,
+        "description": "random cat fact <3"
+    },
+    {
+        "name": "flip",
+        "type": 1,
+        "description": "flip a coin <3"
+    },
+    {
+        "name": "cat",
+        "type": 1,
+        "description": "random cat image <3"
+    },
+    {
+        "name": "dog",
+        "type": 1,
+        "description": "random dog image <3"
+    },
+    {
+        "name": "raccoon",
+        "type": 1,
+        "description": "random raccoon image <3"
+    },
+    {
+        "name": "panda",
+        "type": 1,
+        "description": "random panda image <3"
+    },
+    {
+        "name": "avatar",
+        "type": 1,
+        "description": "fetch a user's avatar <3",
+        "options": [
+            {
+                "name": "user",
+                "description": "the user to get the avatar of",
+                "type": 6,
+                "required": false
+            }
+        ]
+    },
+    {
+        "name": "mc-skin",
+        "type": 1,
+        "description": "fetch someone's minecraft skin <3",
+        "options": [
+            {
+                "name": "username",
+                "description": "the username of the skin's wearer",
+                "type": 3,
+                "required": false
+            }
+        ]
+    },
+    {
+        "name": "achievement",
+        "type": 1,
+        "description": "generate a minecraft achievement <3",
+        "options": [
+            {
+                "name": "text",
+                "description": "the text of the achievement",
+                "type": 3,
+                "required": true
+            },
+            {
+                "name": "block",
+                "description": "the block that appears as an icon",
+                "type": 3,
+                "required": true,
+                "choices": [
+                    {
+                        "name": "Stone",
+                        "value": "20"
+                    },
+                    {
+                        "name": "Grass",
+                        "value": "1" 
+                    },
+                    {
+                        "name": "Wooden Plank",
+                        "value": "21"
+                    },
+                    {
+                        "name": "Crafting Table",
+                        "value": "13"
+                    },
+                    {
+                        "name": "Furnace",
+                        "value": "18"
+                    },
+                    {
+                        "name": "Chest",
+                        "value": "17"
+                    },
+                    {
+                        "name": "Bed",
+                        "value": "9" 
+                    },
+                    {
+                        "name": "Iron",
+                        "value": "22"
+                    },
+                    {
+                        "name": "Diamond",
+                        "value": "2" 
+                    },
+                    {
+                        "name": "Sign",
+                        "value": "11"
+                    },
+                    {
+                        "name": "Book",
+                        "value": "19"
+                    },
+                    {
+                        "name": "Wooden Door",
+                        "value": "24"
+                    },
+                    {
+                        "name": "Redstone",
+                        "value": "14"
+                    },
+                    {
+                        "name": "Diamond Sword",
+                        "value": "3" 
+                    },
+                    {
+                        "name": "Iron Chestplate",
+                        "value": "35"
+                    },
+                    {
+                        "name": "TNT",
+                        "value": "6" 
+                    },
+                    {
+                        "name": "Fire",
+                        "value": "15"
+                    },
+                    {
+                        "name": "Water Bucket",
+                        "value": "37"
+                    },
+                    {
+                        "name": "Lava Bucket",
+                        "value": "38"
+                    },
+                    {
+                        "name": "Cake",
+                        "value": "10"
+                    },
+                    {
+                        "name": "Milk Bucket",
+                        "value": "39"
+                    },
+                    {
+                        "name": "Pig",
+                        "value": "5 "
+                    },
+                    {
+                        "name": "Heart",
+                        "value": "8" 
+                    },
+                    {
+                        "name": "Cobweb",
+                        "value": "16"
+                    },
+                    {
+                        "name": "Potion",
+                        "value": "28"
+                    }
+                ]
+            },
+            {
+                "name": "achievementget",
+                "description": "replace the achievement get text",
+                "type": 3,
+                "required": false
+            }
+        ]
+    }
+]

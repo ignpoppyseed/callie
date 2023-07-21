@@ -1,73 +1,20 @@
 const axios = require("axios");
+const fs = require('fs'); 
 
-const commands = [
-    {
-        "name": "help",
-        "type": 1,
-        "description": "help menu <3"
-    },
-    {
-        "name": "uwu",
-        "type": 1,
-        "description": "uwu <3"
-    },
-    {
-        "name": "credits",
-        "type": 1,
-        "description": "credits for callie <3"
-    },
-    {
-        "name": "invite",
-        "type": 1,
-        "description": "invite callie <3"
-    },
-    {
-        "name": "moomin",
-        "type": 1,
-        "description": "moomin <3"
-    },
-    {
-        "name": "blahaj",
-        "type": 1,
-        "description": "random blahaj <3"
-    },
-    {
-        "name": "cat-fact",
-        "type": 1,
-        "description": "random cat fact <3"
-    },
-    {
-        "name": "flip",
-        "type": 1,
-        "description": "flip a coin <3"
-    },
-    {
-        "name": "avatar",
-        "type": 1,
-        "description": "fetch a user's avatar <3",
-        "options": [
-            {
-                "name": "user",
-                "description": "the user to get the avatar of",
-                "type": 6,
-                "required": false
-            }
-        ]
-    },
-    {
-        "name": "mc-skin",
-        "type": 1,
-        "description": "fetch someone's minecraft skin <3",
-        "options": [
-            {
-                "name": "username",
-                "description": "the username of the skin's wearer",
-                "type": 3,
-                "required": false
-            }
-        ]
+// fs.open('commands.json', 'r', function (err, f) {
+//     console.log(f.read())
+//     commands = f
+// });
+
+var commands
+
+fs.readFile('commands.json', 'utf8', (err, f) => {
+    if (err) {
+        console.error(err);
+        return;
     }
-]
+    commands = JSON.parse(f)
+});
 
 function find_index_by_name(input_name, dictionary_list) {
     for (let i = 0; i < dictionary_list.length; i++) {
@@ -78,19 +25,63 @@ function find_index_by_name(input_name, dictionary_list) {
     return null;
 }
 
-function check_array_equivalence(arr1, arr2) {
-    if (arr1 == undefined && arr2 == undefined) {
-        return true;
-    }
-    if (arr1.length !== arr2.length) {
+// function check_array_equivalence(arr1, arr2) {
+//     if (arr1 == undefined && arr2 == undefined) { return true; } else if (arr1 == undefined || arr2 == undefined) { return false; }
+    
+//     if (arr1.length !== arr2.length) {
+//         return false;
+//     }
+//     for (let i = 0; i < arr1.length; i++) {
+//         if (JSON.stringify(arr1[i]) !== JSON.stringify(arr2[i])) {
+//         return false;
+//         }
+//     }
+//     return true;
+// }
+
+function check_array_equivalence(list1, list2) {
+    if (list1 == undefined && list2 == undefined) { return true; } else if (list1 == undefined || list2 == undefined) { return false; }
+    if (list1.length !== list2.length) {
         return false;
     }
-    for (let i = 0; i < arr1.length; i++) {
-        if (JSON.stringify(arr1[i]) !== JSON.stringify(arr2[i])) {
-        return false;
+
+    // Helper function to check if two objects are equal
+    function areObjectsEqual(obj1, obj2) {
+        return obj1.name === obj2.name && obj1.value === obj2.value;
+    }
+
+    // Sort the lists by name to ensure elements are in the same order
+    const sortedList1 = list1.slice().sort((a, b) => a.name.localeCompare(b.name));
+    const sortedList2 = list2.slice().sort((a, b) => a.name.localeCompare(b.name));
+
+    // Compare the sorted lists element by element
+    for (let i = 0; i < sortedList1.length; i++) {
+        if (!areObjectsEqual(sortedList1[i], sortedList2[i])) {
+            return false;
         }
     }
+
     return true;
+}
+
+function find_old_commands(local_commands, discord_commands) {
+    const missingKeys = [];
+  
+    discord_commands.forEach((discord_commands) => {
+        const name = discord_commands['name'];
+        const id = discord_commands['id'];
+        const matchingDict = local_commands.find((local_commands) => local_commands['name'] === name);
+    
+        if (matchingDict) {
+            Object.keys(discord_commands).forEach((key) => {
+            matchingDict[key] = discord_commands[key];
+            });
+        } else {
+            missingKeys.push({name, id});
+        }
+    });
+  
+    return missingKeys;
 }
 
 /**
@@ -101,7 +92,12 @@ module.exports = async (request, response) => {
     // this block only runs after the token has been verified and if the request is POST (temp changed to GET for debugging)
     if (process.env.TOKEN == request.query.auth && request.method == 'GET') {
     // concatenates the request protocol and url to create a url in the format of "http://localhost"
-    var request_url = request.headers['x-forwarded-proto']+'://'+request.headers.host
+    var request_url
+    if (request.headers['cf-visitor'] == undefined) { 
+        request_url = 'http://'+request.headers.host
+    } else {
+        request_url = JSON.parse(request.headers['cf-visitor']).scheme+'://'+request.headers.host
+    }
     // const message = request.body;
 
     const config = {
@@ -156,29 +152,63 @@ module.exports = async (request, response) => {
             } else {
                 // now check if all options match
                 for (let i = 0; i < command.options.length; i++) {
-                    if (!check_array_equivalence(ecommand.options[i].choices, JSON.stringify(command.options[i].choices)) || 
-                    ecommand.options[i].name != command.options[i].name || 
-                    ecommand.options[i].description != command.options[i].description ||
-                    ecommand.options[i].type != command.options[i].type ||
-                    ecommand.options[i].required == undefined && command.options[i].required != false) {
-                        // COMMAND NEEDS TO BE REGISTERED
+                    if (!check_array_equivalence(ecommand.options[i].choices, command.options[i].choices)) {
                         commands_to_register.push(command)
-                        console.log(command.name, 'NEEDS TO BE REGISTERED (opt attributes dont match)')
-                        
-                        console.log(`BEGIN ${command.name} ATTRIBUTES`)
+                        console.log(command.name, 'NEEDS TO BE REGISTERED (choices dont match)')
                         console.log(JSON.stringify(ecommand.options[i].choices) + ' vs ' + JSON.stringify(command.options[i].choices)) 
-                        // console.log(ecommand.options[i].name + ' vs ' + command.options[i].name)
-                        // console.log(ecommand.options[i].description + ' vs ' + command.options[i].description)
-                        // console.log(ecommand.options[i].type + ' vs ' + command.options[i].type)
-                        // console.log(ecommand.options[i].required + ' vs ' + command.options[i].required)
-                        // console.log(ecommand.options[i].choices)
-                        // console.log(command.options[i].choices)
-                        console.log(`END ${command.name} ATTRIBUTES`)
+                    } else if (ecommand.options[i].name != command.options[i].name) {
+                        commands_to_register.push(command)
+                        console.log(command.name, 'NEEDS TO BE REGISTERED (name doesnt match)')
+                        console.log(ecommand.options[i].name + ' vs ' + command.options[i].name)
+                    } else if (ecommand.options[i].description != command.options[i].description) {
+                        commands_to_register.push(command)
+                        console.log(command.name, 'NEEDS TO BE REGISTERED (opt description doesnt match)')
+                        console.log(ecommand.options[i].description + ' vs ' + command.options[i].description)
+                    } else if (ecommand.options[i].type != command.options[i].type) {
+                        commands_to_register.push(command)
+                        console.log(command.name, 'NEEDS TO BE REGISTERED (type doesnt match)')
+                        console.log(ecommand.options[i].type + ' vs ' + command.options[i].type)
+                    } else if (ecommand.options[i].required == undefined && command.options[i].required != false) {
+                        commands_to_register.push(command)
+                        console.log(command.name, 'NEEDS TO BE REGISTERED (required doesnt match)')
+                        console.log(ecommand.options[i].required + ' vs ' + command.options[i].required)
                     }
+                    // if (!check_array_equivalence(ecommand.options[i].choices, JSON.stringify(command.options[i].choices)) || 
+                    // ecommand.options[i].name != command.options[i].name || 
+                    // ecommand.options[i].description != command.options[i].description ||
+                    // ecommand.options[i].type != command.options[i].type ||
+                    // ecommand.options[i].required == undefined && command.options[i].required != false) {
+                    //     // COMMAND NEEDS TO BE REGISTERED
+                    //     commands_to_register.push(command)
+                    //     console.log(command.name, 'NEEDS TO BE REGISTERED (opt attributes dont match)')
+                        
+                    //     console.log(`BEGIN ${command.name} ATTRIBUTES`)
+                    //     // console.log(JSON.stringify(ecommand.options[i].choices) + ' vs ' + JSON.stringify(command.options[i].choices)) 
+                    //     console.log(ecommand.options[i].name + ' vs ' + command.options[i].name)
+                    //     console.log(ecommand.options[i].description + ' vs ' + command.options[i].description)
+                    //     console.log(ecommand.options[i].type + ' vs ' + command.options[i].type)
+                    //     console.log(ecommand.options[i].required + ' vs ' + command.options[i].required)
+                    //     console.log(ecommand.options[i].choices)
+                    //     console.log(command.options[i].choices)
+                    //     console.log(`END ${command.name} ATTRIBUTES`)
+                    // }
                 }
             }
         }
     }
+
+    var old_commands = find_old_commands(commands, existing_commands)
+    console.log(old_commands)
+    if (old_commands.length != 0) {
+        // only run if there are any old commands
+        old_commands.forEach( async (command) => {
+            console.log('deleting', command.name)
+            await axios.delete('https://discord.com/api/v10/applications/'+ process.env.APPLICATION_ID +'/commands/'+command.id, config)
+        })
+    } else {
+        console.log('no cmds deleted')
+    }
+    console.log('done deleting old cmds')
 
     //
     // 

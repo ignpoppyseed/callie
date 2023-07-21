@@ -5,22 +5,91 @@ const {
 } = require("discord-interactions");
 const getRawBody = require("raw-body");
 const axios = require("axios");
+
+axios.defaults.headers.common['Authorization'] = 'Bot '+process.env.TOKEN;
   
 const invite_url = `https://discord.com/api/oauth2/authorize?client_id=${process.env.APPLICATION_ID}&permissions=8&scope=bot%20applications.commands`;
 const poppy_id = 402569003903483904
 const callie_color = parseInt('#202225'.replace('#', ''), 16)
 const callie_footer_img = 'https://cdn.discordapp.com/attachments/1128934435211976865/1128939260284772362/icon.gif'
-const footer = {
-    "footer": {
-        "text": "callie <3",
-        "icon_url": callie_footer_img
-    },
-    "timestamp": `${new Date().toISOString()}`
-}
+const discord_api_root_url = 'https://discord.com/api/v10'
+const axois_config = { headers: { Authorization: 'Bot '+process.env.TOKEN, }};
 
 Array.prototype.random = function () {
     return this[Math.floor((Math.random()*this.length))];
 }
+
+async function add_reaction(channel_id, message_id, emoji) {
+    // /channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me
+    await axios.put(discord_api_root_url+`/channels/${channel_id}/messages/${message_id}/reactions/${encodeURIComponent(emoji)}/@me`, axois_config)
+    return 200
+}
+
+async function get_original_interaction_response(interaction_token) {
+    var func_response
+    await axios(`https://discord.com/api/v10/webhooks/${process.env.APPLICATION_ID}/${interaction_token}/messages/@original`, axois_config)
+    .then( async (axios_response) => {
+        func_response = axios_response
+    }).catch( async (error) => {
+        func_response = error
+    })
+    return func_response
+}
+
+async function send_followup(interaction_token) {
+
+    var followup_content = {
+        type: 4,
+        data: {
+            content: "<3"//+message.data.name.toLowerCase()
+        }
+    }
+
+    axios.post(discord_api_root_url+`/webhooks/${process.env.APPLICATION_ID}/${interaction_token}`, followup_content, axois_config)
+    .then( async (response) => {
+        console.log(response.data)
+    }).catch( async (error) => {
+        console.log('THREW ERROR, POPPY NEEDS TO LOOK INTO THIS')
+        console.log(error)
+    })
+    return
+}
+
+async function SRA(endpoint, args='') {
+    var sra_response
+    await axios('https://some-random-api.com/'+endpoint+args)
+    .then( async (raw_res) => {
+        sra_response = raw_res.data
+    }).catch( async (error) => {
+        sra_response = error
+    })
+    return sra_response
+}
+
+// async function UWU() {
+//     const response = await axios(discord_api_root_url+`/webhooks/${process.env.APPLICATION_ID}/aW50ZXJhY3Rpb246MTEzMTU5NzM5NjY4MjQ4MTY5OTpydVN5VUdiWlpQSHpuN2dzWEdsekphSG00WGlEQUU4YjZWZDZ5UmU3clNHbHkxTmU1UVFuR1ZiWUpRQmNKa3JEaHFJNkt5QWFhbHdraEVEYzFjMjBhT3RKNTBiR1NPQTJEQjZEeTJWMk5ZS213V0VMQ1diNWU3VFBPR1B4TzhzQw/messages/@original`, axois_config)
+//     interaction_response = response.data
+//     return interaction_response
+// }
+
+// async function get_original_interaction_response(interaction_token) {
+//     console.log('1')
+//     // /channels/{channel.id}/messages/{message.id}/reactions/{emoji}/@me
+//     var interaction_response = {}
+//     console.log('2')
+//     await axios(discord_api_root_url+`/webhooks/${process.env.APPLICATION_ID}/${interaction_token}/messages/@original`, axois_config)
+//     .then( async (response) => {
+//         interaction_response = response.data
+//         console.log('3')
+//         return 'uwu'
+//     }).catch( async (error) => {
+//         console.log(error)
+//         return 'owo'
+//     })
+//     console.log('4')
+//     console.log(interaction_response)
+//     return interaction_response
+// }
 
 /**
 * i miss you callie
@@ -31,7 +100,7 @@ module.exports = async (request, response) => {
   if (request.method === "POST") {
     const signature = request.headers["x-signature-ed25519"];
     const timestamp = request.headers["x-signature-timestamp"];
-    const rawBody = await getRawBody(request);
+    const rawBody = JSON.stringify(request.body);
 
     const isValidRequest = verifyKey(
         rawBody,
@@ -46,6 +115,8 @@ module.exports = async (request, response) => {
     }
 
     const message = request.body;
+
+    // console.log(message)
 
     if (message.type === InteractionType.PING) {
         console.log("Handling Ping request");
@@ -422,12 +493,241 @@ module.exports = async (request, response) => {
                     }
                 });
                 break;
+            case 'achievement':
+                console.log('achievement')
+                console.log(message.data)
+
+                var text = message.data.options[0].value
+                var block = message.data.options[1].value
+                var achievementget 
+                if (message.data.options[2] == undefined) { achievementget = 'Achievement Get!' } else { achievementget = message.data.options[2].value }
+
+                var image_url = `https://skinmc.net/en/achievement/${block}/${encodeURIComponent(achievementget)}/${encodeURIComponent(text)}`
+                response.status(200).send({
+                    type: 4,
+                    data: {
+                        "content": null,
+                        "embeds": [
+                            {
+                                "description": `***achievement get! <3***`,
+                                "color": callie_color,
+                                "image": {
+                                    "url": image_url
+                                },
+                                "footer": {
+                                    "text": "callie <3",
+                                    "icon_url": callie_footer_img
+                                },
+                                "timestamp": `${new Date().toISOString()}`
+                            }
+                        ],
+                        "attachments": []
+                    }
+                });
+                break;
+            case 'cat':
+                console.log('cat')
+                var somedata = await SRA('animal/cat')
+                response.status(200).send({
+                    type: 4,
+                    data: {
+                        "content": null,
+                        "embeds": [
+                            {
+                                "description": `***kitty! <3***`,
+                                "color": callie_color,
+                                "image": {
+                                    "url": somedata.image
+                                },
+                                "footer": {
+                                    "text": "callie <3",
+                                    "icon_url": callie_footer_img
+                                },
+                                "timestamp": `${new Date().toISOString()}`
+                            }
+                        ],
+                        "attachments": []
+                    }
+                });
+                break;
+            case 'raccoon':
+                console.log('raccoon')
+                var somedata = await SRA('animal/raccoon')
+                response.status(200).send({
+                    type: 4,
+                    data: {
+                        "content": null,
+                        "embeds": [
+                            {
+                                "description": `***raccoon! <3***`,
+                                "color": callie_color,
+                                "image": {
+                                    "url": somedata.image
+                                },
+                                "footer": {
+                                    "text": "callie <3",
+                                    "icon_url": callie_footer_img
+                                },
+                                "timestamp": `${new Date().toISOString()}`
+                            }
+                        ],
+                        "attachments": []
+                    }
+                });
+                break;
+            case 'dog':
+                console.log('dog')
+                var somedata = await SRA('animal/dog')
+                response.status(200).send({
+                    type: 4,
+                    data: {
+                        "content": null,
+                        "embeds": [
+                            {
+                                "description": `***doggy! <3***`,
+                                "color": callie_color,
+                                "image": {
+                                    "url": somedata.image
+                                },
+                                "footer": {
+                                    "text": "callie <3",
+                                    "icon_url": callie_footer_img
+                                },
+                                "timestamp": `${new Date().toISOString()}`
+                            }
+                        ],
+                        "attachments": []
+                    }
+                });
+                break;
+            case 'panda':
+                console.log('panda')
+                var somedata = await SRA('animal/panda')
+                response.status(200).send({
+                    type: 4,
+                    data: {
+                        "content": null,
+                        "embeds": [
+                            {
+                                "description": `***pamda bear! <3***`,
+                                "color": callie_color,
+                                "image": {
+                                    "url": somedata.image
+                                },
+                                "footer": {
+                                    "text": "callie <3",
+                                    "icon_url": callie_footer_img
+                                },
+                                "timestamp": `${new Date().toISOString()}`
+                            }
+                        ],
+                        "attachments": []
+                    }
+                });
+                break;
+            // case 'poll':
+                // console.log('poll')
+                // console.log(message.data)
+                // var raw_poll_question = message.data.options[0].value
+                // var raw_poll_options = message.data.options[1].value
+
+                // var desc = `***poll!!! <3***\n**${raw_poll_question}**\n`
+
+                // var poll_options = raw_poll_options.split(', ')
+                // // console.log(poll_options)
+                // if (poll_options.length == 1) {
+                //     poll_options = ""+raw_poll_options.split(',')
+                // }
+
+                // var options_length = poll_options.length
+                // if (poll_options.length > 8) { options_length = 8 } 
+
+                // for (let i = 0; i < options_length; i++) {
+                //     desc += (i+1).toString()+'. '+poll_options[i]+'\n'
+                // }
+
+                // // response.status(200).send({
+                // //     type: 4,
+                // //     data: {
+                // //         "content": null,
+                // //         "embeds": [
+                // //             {
+                // //                 "description": desc,
+                // //                 "color": callie_color,
+                // //                 "footer": {
+                // //                     "text": "callie <3",
+                // //                     "icon_url": callie_footer_img
+                // //                 },
+                // //                 "timestamp": `${new Date().toISOString()}`
+                // //             }
+                // //         ],
+                // //         "reactions": [
+                // //             {
+                // //                 "emoji": "U+1F44D",
+                // //                 "count": 1
+                // //             }
+                // //         ],
+                // //         "attachments": []
+                // //     }
+                // // });
+                // // await add_reaction(message.channel.id, )
+                // // console.log(response)
+
+                // console.log(message.token)
+                // console.log(typeof message.token)
+                // // console.log(await get_original_interaction_response(message.token))
+
+                // // console.log(await get_original_interaction_response(message.token))
+                // // console.log(await UWU())
+                // // await add_reaction(message.channel.id, await get_original_interaction_response(message.token).id, '✨')
+                // // console.log('uwu')
+                // // await send_followup(message.token)
+                // // const aaaaaaaaaaaa = await axios(discord_api_root_url+`/webhooks/${process.env.APPLICATION_ID}/${message.token}/messages/@original`, axois_config)
+                // // interaction_response = aaaaaaaaaaaa.data
+                // // console.log('3')
+                // // return 'uwu'
+                // // console.log('returned')
+                // // await axios(discord_api_root_url+`/webhooks/${process.env.APPLICATION_ID}/${message.token}/messages/@original`, axois_config)
+                // var followup_content = {
+                //     type: 4,
+                //     data: {
+                //         content: "<   3"//+message.data.name.toLowerCase()
+                //     }
+                // }
+                // // console.log(await axios.post(discord_api_root_url+`/interactions/${message.id}/${message.token}/callback`, followup_content, axois_config).status)
+                // console.log(await axios.post(discord_api_root_url+`/interactions/${message.id}/${message.token}/callback`, followup_content))//, axois_config).status)
+                // console.log('uwu')
+                // // var rahhh = await axios(`https://discord.com/api/v10/webhooks/${process.env.APPLICATION_ID}/${message.token}/messages/@original`)//, axois_config)
+                // // var rahhh = await axios(`https://discord.com/api/v10/webhooks/958956806875529246/aW50ZXJhY3Rpb246MTEzMTYzNjM5NzA5NTI1NjE2NDpGd3RhMDJ3cWE4ckZxOUNLZnpxU29CeHJRNjI3VGVMOXEyd1VFOVRyY0JQWTh2WkVvSTM4WHNoVHpuVDJnOHNPOFRrZTVqRFVqR2xmeE5lRk0wZVRyZmxzT3JCMzVxejhkWXdUNWhudmFlcUZCUW9zQ2YxbkNlYmltVjFFdnA5MQ/messages/@original`, axois_config)
+                // // console.log(rahhh)
+                // var url = `https://discord.com/api/v10/webhooks/${process.env.APPLICATION_ID}/${message.token}/messages/@original`
+                // // var url = `https://discord.com/api/v10/webhooks/${process.env.APPLICATION_ID}/aW50ZXJhY3Rpb246MTEzMTY0MDk1MDEwNDUzMDk2NTpWenV1Y2FDQmdEVDROSmRNMDdtTjdKZXpyQkgwc3Y4dWU4NGFTQ01GQlFxbFBWWjZabmczUEZodnJwNEVNekh0THRHd2JtZ3BQaEFzWHFtZVZuY1BsRUlVRVd2emloU2J4NldSM2M2bXNyQ1BQdnNFWnJqTE1OS25jZm53WVR6bg/messages/@original`
+                // // var url = `https://discord.com/api/v10/webhooks/958956806875529246/aW50ZXJhY3Rpb246MTEzMTYzNjM5NzA5NTI1NjE2NDpGd3RhMDJ3cWE4ckZxOUNLZnpxU29CeHJRNjI3VGVMOXEyd1VFOVRyY0JQWTh2WkVvSTM4WHNoVHpuVDJnOHNPOFRrZTVqRFVqR2xmeE5lRk0wZVRyZmxzT3JCMzVxejhkWXdUNWhudmFlcUZCUW9zQ2YxbkNlYmltVjFFdnA5MQ/messages/@original`
+                // var apiresponse = await fetch(url, axois_config);
+                // var data = await apiresponse.json();
+                // console.log(data.id)
+                // var apiresponse = await fetch(url, axois_config);
+                // var data = await apiresponse.json();
+                // console.log(data.id)
+                // // console.log(await axios.put(discord_api_root_url+`/channels/${message.channel.id}/messages/${data.id}/reactions/${encodeURIComponent('❤')}/@me`, axois_config))
+                // console.log(await axios.put(discord_api_root_url+`/channels/${message.channel.id}/messages/${data.id}/reactions/${encodeURIComponent('❤')}/@me`, axois_config))
+                // // console.log(await axios.put(discord_api_root_url+`/channels/951027740256137229/messages/1131640957100630026/reactions/%E2%9D%A4/@me`))
+                // // console.log(await axios.put(discord_api_root_url+`/channels/951027740256137229/messages/${await get_original_interaction_response(message.token)}/reactions/${encodeURIComponent('❤')}/@me`, axois_config).status)
+                // // await add_reaction(message.channel.id, await get_original_interaction_response(message.token).id, '✨')
+                // // response.status(200).send({
+                // //     type: 4,
+                // //     data: {
+                // //         "content": '<3',
+                // //     }
+                // // });
+
+                // break;
             default:
                 console.log('default')
                 response.status(200).send({
                     type: 4,
                     data: {
-                        content: "<3\ncmd invoked: `"+message.data.name.toLowerCase()
+                        content: "<3\ncmd invoked: `"+message.data.name.toLowerCase()+'`'
                     }
                 });
                 break;
