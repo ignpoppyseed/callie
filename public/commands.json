@@ -20,6 +20,11 @@
         "description": "invite callie <3"
     },
     {
+        "name": "website",
+        "type": 1,
+        "description": "visit callie's website <3"
+    },
+    {
         "name": "moomin",
         "type": 1,
         "description": "moomin <3"
@@ -82,6 +87,108 @@
                 "description": "the username of the skin's wearer",
                 "type": 3,
                 "required": false
+            }
+        ]
+    },
+    {
+        "name": "tweet",
+        "type": 1,
+        "description": "generate a fake tweet <3",
+        "options": [
+            {
+                "name": "displayname",
+                "description": "the display name to display",
+                "type": 3,
+                "required": true
+            },
+            {
+                "name": "username",
+                "description": "the username to display",
+                "type": 3,
+                "required": true
+            },
+            {
+                "name": "content",
+                "description": "the content of the tweet",
+                "type": 3,
+                "required": true
+            },
+            {
+                "name": "avatar",
+                "description": "the tweet author's avatar (must be a direct link to a png, jpg, or gif)",
+                "type": 3,
+                "required": false
+            },
+            {
+                "name": "replies",
+                "description": "the number of replies the tweet has",
+                "type": 3,
+                "required": false
+            },
+            {
+                "name": "retweets",
+                "description": "the number of retweets the tweet has",
+                "type": 3,
+                "required": false
+            },
+            {
+                "name": "likes",
+                "description": "the number of likes the tweet has",
+                "type": 3,
+                "required": false
+            },
+            {
+                "name": "theme",
+                "description": "the theme of the screenshot",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "name": "dark",
+                        "value": "dark"
+                    },
+                    {
+                        "name": "light",
+                        "value": "light" 
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "qr",
+        "type": 1,
+        "description": "generate a qr code <3",
+        "options": [
+            {
+                "name": "url",
+                "description": "the url for the qr code",
+                "type": 3,
+                "required": true
+            },
+            {
+                "name": "size",
+                "description": "the size of the image (defaults to 512x512)",
+                "type": 3,
+                "required": false,
+                "choices": [
+                    {
+                        "name": "128x128",
+                        "value": "128x128" 
+                    },
+                    {
+                        "name": "256x256",
+                        "value": "256x256" 
+                    },
+                    {
+                        "name": "512x512",
+                        "value": "512x512"
+                    },
+                    {
+                        "name": "547x547",
+                        "value": "547x547"
+                    }
+                ]
             }
         ]
     },

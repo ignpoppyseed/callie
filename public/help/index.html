@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- <link rel="stylesheet" href="css/font-awesome.min.css"> -->
+    <!-- <link rel="stylesheet" href="/static/css/style.css"> -->
+    <link rel="stylesheet" href="css/nav.css">
+    <link rel="stylesheet" href="css/shine.css">
+
+    <style>
+        :root {
+            --mobile_menu_y_offset: 76px;
+            --menu-transition: 0.3s;
+            --crossfade-duration: 0.3s;
+        }
+        body {
+            display: flex;
+            /* align-items: center; */
+            justify-content: center;
+            flex-direction: row;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            color: rgb(240, 255, 255);
+            background-color: #202225;
+            /* background-image: url('https://picsum.photos/1920/1080.webp?blur=7'); */
+            background-size: cover;
+            font-family: Arial, Helvetica, sans-serif;
+            /* opacity: 0; */
+            /* visibility: hidden; */
+            /* transition: opacity 1s ease; */
+        }
+        #table_container {
+            display: flex;
+            align-items: center;
+            align-self: center;
+            justify-content: center;
+            /* flex-direction: column; */
+            /* transform: translateY(1rem);
+            transition: transform 1s ease; */
+            /* animation: fade_in_animation ease 1s; */
+            transition: opacity var(--crossfade-duration) ease;
+            text-align: center;
+            opacity: 0;
+        }
+        #table_container.loaded {
+            opacity: 1;
+        }
+        .callie_image {
+            border: white 5px solid;
+            border-radius: 100%;
+            margin: 5px;
+        }
+        .callie_image.minify{
+            height: 40vh;
+            aspect-ratio: 1/1;
+        }
+        .callie_image.margin{
+            margin-right: 5rem;
+        }
+        #loading_gif {
+            transition: opacity var(--crossfade-duration);
+            opacity: 1;
+            position: absolute;
+            align-self: center;
+            /* height: 5vh;  */
+            height: 35vh; 
+            aspect-ratio: 1/1;
+            animation: fade_in_animation ease 1s;
+        }
+        #loading_gif.loaded {
+            opacity: 0;
+            /* display: none; */
+            animation: fade_out_animation ease var(--crossfade-duration);
+        }
+        @keyframes fade_in_animation {
+            0% { opacity: 0; transform: translateY(0.7rem); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fade_out_animation {
+            0% { opacity: 1; }
+            100% { opacity: 0;}
+        }
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 2px solid #111;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:first-child {
+            background-color: #111;
+        }
+        code {
+            background: #111;
+            border-radius: 4px;
+            padding: .25rem;
+        }
+        a { text-decoration: none; color: inherit; }
+        a:visited { text-decoration: none; color: inherit; }
+        a:hover { text-decoration: none; color: inherit; }
+        @media only screen and (max-width: 980px) {
+            body {
+                display: block;
+                height: auto;
+            }
+            .callie_image.margin{
+                margin: 5px;
+            }
+            #table_container {
+                flex-direction: column-reverse;
+                align-self: flex-start;
+            }
+            .no_flex_center_mobile_only {
+                margin: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                -ms-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
+            }
+            #loading_gif {
+                animation: fade_in_animation_mobile ease 1s;
+            }
+            @keyframes fade_in_animation_mobile {
+                0% { opacity: 0; }
+                100% { opacity: 1; }
+            }
+        }
+    </style>
+    <!-- favicon -->
+    <link rel="icon" href="images/pfp_circle.png" type="image/x-icon">
+    <!-- removing this makes things really odd on mobile, i dont actually really know why it's needed. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>callie — help</title>
+    <!-- https://callie.rest/images/pfp_circle.png -->
+
+    <meta content="callie — help" property="og:title">
+    <meta content="callie is an aesthetic bot mainly focusing on fun and animal-related commands! <3" property="og:description">
+    <meta name="og:image" itemprop="image" content="https://callie.rest/images/pfp_circle.png">
+
+</head>
+<body>
+    <div id="navbar" class="navbar">
+        <div style="display: flex; width: 100%;">
+                <a href="/">
+                    <div id="brand_container">
+                        <p id="nav_text" class="bold">callie <3</p>
+                    </div>
+                </a>
+                <a class="nav_element nav_icon" onclick="mobile_nav_dropdown()"><i class="fa fa-bars"></i></a>
+            </div>
+        <div id="nav_elements" class="nav_elements">
+            <a class="nav_element" href="/"><p>home</p></a>
+            <a class="nav_element nav_selected" href="/help"><p>help</p></a>
+            <a class="nav_element" href="https://canary.discord.com/api/oauth2/authorize?client_id=953858283893035019&permissions=1222656781543&scope=bot%20applications.commands" target="_blank"><p>invite</p></a>
+            <a class="nav_element" href="https://top.gg/bot/953858283893035019/vote" target="_blank"><p>vote</p></a>
+            <!-- <a class="nav_element" href="/projects"><p>projects</p></a>
+            <a class="nav_element" href="/socials"><p>socials</p></a>
+            <a class="nav_element" href="/nowplaying"><p>what i'm listening to</p></a> -->
+        </div>
+    </div>
+    <div id="nav_space"></div>
+    <!-- <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/YouTube_loading_symbol_3_%28transparent%29.gif" id="loading_gif" class="no_flex_center_mobile_only"> -->
+    <img src="images/load.gif" id="loading_gif" class="no_flex_center_mobile_only large_load_for_test">
+    <div id="table_container">
+        <!-- <table>
+            <tr>
+                <th>command</th>
+                <th>description</th>
+                <th>arguments</th>
+            </tr>
+            <tr>
+                <td><code>/help</code></td>
+                <td>help menu <3</td>
+                <td>none <3></td>
+            </tr>
+            <tr>
+                <td><code>/credits</code></td>
+                <td>credits for callie <3</td>
+                <td>none <3></td>
+            </tr>
+            <tr>
+                <td><code>/invite</code></td>
+                <td>invite callie <3</td>
+                <td>none <3</td>
+            </tr>
+            <tr>
+                <td><code>/command</code></td>
+                <td>description_description_description</td>
+                <td>args_sep_with_comma</td>
+            </tr>
+            <p>sep</p>
+            <tr>
+                <td><code>/blahaj</code></td>
+                <td>random blahaj <3</td>
+                <td>args_sep_with_comma</td>
+            </tr>
+        </table>  -->
+    </div>
+</body>
+<script>
+    // // Wait for the background image to load before fading in the content
+    // window.addEventListener('load', function() {
+    //     document.body.style.transform = 'translateY(0)';
+    //     // document.body.style.visibility = 'visible';
+    // });
+</script>
+<script> document.querySelector(':root').style.setProperty('--mobile_menu_y_offset', document.getElementById('navbar').offsetHeight+'px'); </script>
+<script> function mobile_nav_dropdown() { const navbar = document.getElementById("navbar"); if (navbar.className === "navbar") { navbar.className += " mobile" } else { navbar.className = "navbar" } } </script>
+<script>
+    const table_div = document.getElementById("table_container");
+    const loading = document.getElementById("loading_gif");
+    fetch('/api/helptable')
+    .then(response => {
+        if (!response.ok) { throw new Error('connection failed') }
+        return response.text()
+    })
+    .then(data => {
+        // console.log(data)
+        table_div.className += "loaded"
+        loading.className += " loaded"
+        table_div.innerHTML += data
+    })
+    .catch(error => {
+        console.error('request failed:', error)
+    });
+    loading.addEventListener('animationend', (event) => { if (event.animationName == 'fade_out_animation') { loading.style.display = 'none'; } });
+</script>

@@ -1,0 +1,8 @@
+{
+    "crons": [
+        {
+          "path": "/api/updateserverstats?auth=OTUzODU4MjgzODkzMDM1MDE5.d6oRRH.bUs7AxCdIrkjcNo1FxVYYW6in1R",
+          "schedule": "0 7 * * *"
+        }
+    ]
+}  

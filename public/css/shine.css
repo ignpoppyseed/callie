@@ -1,0 +1,21 @@
+.shine {
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: inherit;
+    /* background-image: linear-gradient(-45deg, #007CF0, #00DFD8, #7928CA, #FF0080, #FF4D4D, #F9CB28); */
+    background-image: linear-gradient(-45deg, #af99ff, #caadff, #ffc2e2, #ffadc7, #ff99b6);
+    animation: gradient 10s ease-in-out infinite;
+    background-size: 400% 400%;
+    transition: color 0.5s;
+    /* -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: inherit; */
+}
+.shine:hover { 
+    color: transparent; 
+    /* -webkit-text-stroke-color: transparent;  */
+}
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}

@@ -8,7 +8,7 @@ const axios = require("axios");
 
 axios.defaults.headers.common['Authorization'] = 'Bot '+process.env.TOKEN;
   
-const invite_url = `https://discord.com/api/oauth2/authorize?client_id=${process.env.APPLICATION_ID}&permissions=8&scope=bot%20applications.commands`;
+const invite_url = `https://canary.discord.com/api/oauth2/authorize?client_id=953858283893035019&permissions=1222656781543&scope=bot%20applications.commands`;
 const poppy_id = 402569003903483904
 const callie_color = parseInt('#202225'.replace('#', ''), 16)
 const callie_footer_img = 'https://cdn.discordapp.com/attachments/1128934435211976865/1128939260284772362/icon.gif'
@@ -17,6 +17,19 @@ const axois_config = { headers: { Authorization: 'Bot '+process.env.TOKEN, }};
 
 Array.prototype.random = function () {
     return this[Math.floor((Math.random()*this.length))];
+}
+
+function get_random_int(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
+}
+
+function convert_options(list) {
+    return list.reduce((result, item) => {
+        result[item.name] = item.value;
+        return result;
+    }, {});
 }
 
 async function add_reaction(channel_id, message_id, emoji) {
@@ -55,15 +68,53 @@ async function send_followup(interaction_token) {
     return
 }
 
-async function SRA(endpoint, args='') {
+async function SRA(endpoint, args={}) {
+    var parsed_args = convert_dict_to_query(args)
     var sra_response
-    await axios('https://some-random-api.com/'+endpoint+args)
+    await axios('https://some-random-api.com/'+endpoint+'?'+parsed_args)
     .then( async (raw_res) => {
         sra_response = raw_res.data
     }).catch( async (error) => {
         sra_response = error
     })
     return sra_response
+}
+
+async function SRA_canvas(endpoint, args={}) {
+    var parsed_args = convert_dict_to_query(args)
+    var sra_response = {}
+    var request_url = 'https://some-random-api.com/canvas/'+endpoint+'?'+parsed_args
+    await axios(request_url, {timeout: 1000})
+    .then( async (raw_res) => {
+        var data = raw_res.data
+        // console.log(data)
+        if (typeof data === "string") {
+            sra_response['image'] = request_url
+        } else {
+            sra_response = data
+            // console.log(data)
+        }
+    }).catch( async (error) => {
+        if (error.code === 'ECONNABORTED') {
+            sra_response = {'error': 'request timed out. are your supplied URLs valid?'}
+        } else {
+            sra_response = error.response.data
+        }
+        // console.log(sra_response)
+    })
+    return sra_response
+    // return 'https://some-random-api.com/canvas/'+endpoint+'?'+parsed_args
+}
+
+function convert_dict_to_query(dictionary) {
+    if (typeof dictionary !== 'object' || dictionary === null) { throw new Error('input is not dict'); }
+    const key_values = [];
+    for (const [key, value] of Object.entries(dictionary)) {
+        const encoded_key = encodeURIComponent(key);
+        const encoded_value = encodeURIComponent(value);
+        key_values.push(`${encoded_key}=${encoded_value}`);
+    }
+    return key_values.join('&');
 }
 
 // async function UWU() {
@@ -191,18 +242,24 @@ module.exports = async (request, response) => {
                                 "color": callie_color,
                                 "fields": [
                                 {
-                                    "name": "callie",
-                                    "value": "- </help:1128959988426096721>\n- </credits:1128959988329615441>\n- </invite:1128959988296069170>",
-                                    "inline": true
-                                },
-                                {
                                     "name": "fun",
-                                    "value": "- </moomin:1128959988530950164>\n- </blahaj:1129230593574572032>\n- </cat-fact:1129319466153562164>",
+                                    // "value": "- </moomin:1128959988530950164>\n- </blahaj:1129230593574572032>\n- </cat-fact:1129319466153562164>\n- </achievement:1132025550769229934>",
+                                    "value": "- </blahaj:1129230593574572032>\n- </cat-fact:1129319466153562164>\n- </achievement:1132025550769229934>\n- </tweet:1132183230829822043>",
                                     "inline": true
                                 },
                                 {
                                     "name": "utilities",
-                                    "value": "- </avatar:1128960380497055764>\n- </flip:1129319420305604618>\n- </mc-skin:1129319301866868838>",
+                                    "value": "- </avatar:1128960380497055764>\n- </flip:1129319420305604618>\n- </mc-skin:1129319301866868838>\n- </qr:1132577391139618907>",
+                                    "inline": true
+                                },
+                                {
+                                    "name": "animals",
+                                    "value": "- </cat:1132025538341515485>\n- </dog:1132025541130735738>\n- </raccoon:1132025544561668236>\n- </panda:1132025547778703432>",
+                                    "inline": true
+                                },
+                                {
+                                    "name": "callie",
+                                    "value": "- </help:1128959988426096721>\n- </credits:1128959988329615441>\n- </invite:1128959988296069170>\n- </website:1132579034908336148>",
                                     "inline": true
                                 }
                                 ],
@@ -282,6 +339,37 @@ module.exports = async (request, response) => {
                     }
                 });
                 break;
+            case 'website':
+                console.log('website')
+                response.status(200).send({
+                    type: 4,
+                    data: {
+                        "content": null,
+                        "embeds": [
+                            {
+                                "description": `***visit callie's website here <3***\nhttps://callie.rest/`,
+                                "color": callie_color,
+                                // "fields": [
+                                // {
+                                //     "name": "all cmds",
+                                //     "value": "- </moomin:1128779998799605882>\n- </help:1128764103851249727>\n- </uwu:1128767765239570562>",
+                                //     "inline": true
+                                // }
+                                // ],
+                                "footer": {
+                                    "text": "callie <3",
+                                    "icon_url": callie_footer_img
+                                },
+                                "timestamp": `${new Date().toISOString()}`,
+                                // "image": {
+                                // "url": "https://cdn.discordapp.com/attachments/1128934435211976865/1128934865224605838/banner.png"
+                                // }
+                            }
+                        ],
+                        "attachments": []
+                    }
+                });
+                break;
             case 'moomin':
                 console.log('moomin')
                 response.status(200).send({
@@ -324,6 +412,8 @@ module.exports = async (request, response) => {
             case 'avatar':
                 console.log('avatar')
 
+                var avatar_url
+
                 var resolved = message.data.resolved
                 if (resolved == undefined) {
                     var user = message.member.user
@@ -331,6 +421,14 @@ module.exports = async (request, response) => {
                     var user = resolved.users
                     user = Object.values(user)[0]
                 }
+
+                if (user.avatar == null) {
+                    avatar_url = `https://cdn.discordapp.com/embed/avatars/${parseInt(user.discriminator)%5}.png`
+                } else {
+                    avatar_url = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=1024`
+                }
+
+                // console.log(user)
 
                 response.status(200).send({
                     type: 4,
@@ -342,7 +440,7 @@ module.exports = async (request, response) => {
                             "description": `***${user.username}'s avatar <3***`,
                             "color": callie_color,
                             "image": {
-                                "url": `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=1024`
+                                "url": avatar_url
                             },
                             "footer": {
                                 "text": "callie <3",
@@ -613,6 +711,149 @@ module.exports = async (request, response) => {
                                 "color": callie_color,
                                 "image": {
                                     "url": somedata.image
+                                },
+                                "footer": {
+                                    "text": "callie <3",
+                                    "icon_url": callie_footer_img
+                                },
+                                "timestamp": `${new Date().toISOString()}`
+                            }
+                        ],
+                        "attachments": []
+                    }
+                });
+                break;
+            case 'tweet':
+                console.log('tweet')
+                var options = convert_options(message.data.options)
+                console.log(options)
+                // var username = options.username
+                
+                // displayname - required
+                // username - required
+                // comment - required
+                // avatar - optional
+                // replies - optional
+                // retweets - optional
+                // theme - optional
+                // console.log(avatar = message.data.options[3].value)
+                var avatar
+                if (options.avatar == undefined) { avatar = `https://cdn.discordapp.com/avatars/${message.member.user.id}/${message.member.user.avatar}.png?size=1024` } else { 
+                    avatar = options.avatar
+                    if (avatar.endsWith('.png') || avatar.endsWith('.jpg') || avatar.endsWith('.gif')) { } else {
+                        response.status(200).send({
+                            type: 4,
+                            data: {
+                                "content": null,
+                                "embeds": [
+                                    {
+                                        "description": `***seems like the image you provided was invalid </3***`,
+                                        "color": callie_color,
+                                        "footer": {
+                                            "text": "callie <3",
+                                            "icon_url": callie_footer_img
+                                        },
+                                        "timestamp": `${new Date().toISOString()}`,
+                                    }
+                                ],
+                                "attachments": []
+                            }
+                        });
+                        return
+                    }
+                    if (!avatar.startsWith('https://') && !avatar.startsWith('https://')) {
+                        avatar = 'https://'+avatar
+                    }
+                }
+                var replies
+                if (options.replies == undefined) { replies = get_random_int(10, 754).toString() } else { replies = options.replies }
+                var retweets
+                if (options.retweets == undefined) { retweets = get_random_int(10, 754).toString() } else { retweets = options.retweets }
+                var likes
+                if (options.likes == undefined) { likes = get_random_int(10, 754).toString() } else { likes = options.likes }
+                var theme
+                if (options.theme == undefined) { theme = `dark` } else { theme = options.theme }
+
+                // var somedata = await SRA_canvas('misc/tweet', {
+                //     displayname: message.data.options[0].value,
+                //     username: message.data.options[1].value,
+                //     comment: message.data.options[2].value,
+                //     avatar: avatar,
+                //     replies: replies,
+                //     retweets: retweets,
+                //     theme: theme
+                // })
+                var somedata = await SRA_canvas('misc/tweet', {
+                    displayname: options.displayname,
+                    username: options.username,
+                    comment: options.content,
+                    avatar: avatar,
+                    replies: replies,
+                    retweets: retweets,
+                    likes: likes,
+                    theme: theme
+                })
+                // console.log(somedata)
+                // return
+                if (somedata.image != undefined) {
+                    response.status(200).send({
+                        type: 4,
+                        data: {
+                            "content": null,
+                            "embeds": [
+                                {
+                                    "description": `***woah!! a hit tweet!! <3***`,
+                                    "color": callie_color,
+                                    "image": {
+                                        "url": somedata.image
+                                    },
+                                    "footer": {
+                                        "text": "callie <3",
+                                        "icon_url": callie_footer_img
+                                    },
+                                    "timestamp": `${new Date().toISOString()}`
+                                }
+                            ],
+                            "attachments": []
+                        }
+                    });
+                } else {
+                    response.status(200).send({
+                        type: 4,
+                        data: {
+                            "content": null,
+                            "embeds": [
+                                {
+                                    "description": `***something went wrong while generating the tweet </3***\nerror:\`\`\`${somedata.error}\`\`\``,
+                                    "color": callie_color,
+                                    "footer": {
+                                        "text": "callie <3",
+                                        "icon_url": callie_footer_img
+                                    },
+                                    "timestamp": `${new Date().toISOString()}`,
+                                }
+                            ],
+                            "attachments": []
+                        }
+                    });
+                }
+                break;
+            case 'qr':
+                console.log('qr')
+                var options = convert_options(message.data.options)
+                console.log(options)
+                var qr_size
+                if (options.size == undefined) { qr_size = '512x512' } else { qr_size = options.size }
+                response.status(200).send({
+                    type: 4,
+                    data: {
+                        "content": null,
+                        "embeds": [
+                            {
+                                "description": `***generated qr code <3***`,
+                                "color": callie_color,
+                                "image": {
+                                    "url": `https://chart.googleapis.com/chart?chs=${encodeURIComponent(qr_size)}&cht=qr&chl=${encodeURIComponent(options.url)}`
                                 },
                                 "footer": {
                                     "text": "callie <3",

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- <link rel="stylesheet" href="css/font-awesome.min.css"> -->
+    <!-- <link rel="stylesheet" href="/static/css/style.css"> -->
+    <link rel="stylesheet" href="css/nav.css">
+    <link rel="stylesheet" href="css/shine.css">
+
+    <style>
+        :root {
+            --mobile_menu_y_offset: 76px;
+            --menu-transition: 0.3s
+        }
+        body {
+            display: flex;
+            /* align-items: center; */
+            justify-content: center;
+            flex-direction: row;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            color: rgb(240, 255, 255);
+            background-color: #202225;
+            /* background-image: url('https://picsum.photos/1920/1080.webp?blur=7'); */
+            background-size: cover;
+            font-family: Arial, Helvetica, sans-serif;
+            /* opacity: 0; */
+            /* visibility: hidden; */
+            /* transition: opacity 1s ease; */
+        }
+        #landing_content {
+            display: flex;
+            align-items: center;
+            align-self: center;
+            justify-content: center;
+            /* flex-direction: column; */
+            /* transform: translateY(1rem);
+            transition: transform 1s ease; */
+            animation: fade_in_animation ease 1s;
+            text-align: center;
+        }
+        #landing_content h1{
+            margin-left: 5rem;
+            margin-right: 5rem;
+        }
+        .callie_image {
+            border: white 5px solid;
+            border-radius: 100%;
+            margin: 5px;
+        }
+        .callie_image.minify{
+            height: 40vh;
+            aspect-ratio: 1/1;
+        }
+        .callie_image.margin{
+            margin-right: 5rem;
+        }
+        @keyframes fade_in_animation {
+            0% { opacity: 0; transform: translateY(0.7rem); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        a { text-decoration: none; color: inherit; }
+        a:visited { text-decoration: none; color: inherit; }
+        a:hover { text-decoration: none; color: inherit; }
+        @media only screen and (max-width: 980px) {
+            body {
+                display: block;
+                height: auto;
+            }
+            .callie_image.margin{
+                margin: 5px;
+            }
+            #landing_content {
+                flex-direction: column-reverse;
+                align-self: flex-start;
+            }
+        }
+    </style>
+    <!-- favicon -->
+    <link rel="icon" href="images/pfp_circle.png" type="image/x-icon">
+    <!-- removing this makes things really odd on mobile, i dont actually really know why it's needed. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>callie — aesthetic discord bot</title>
+    <!-- https://callie.rest/images/pfp_circle.png -->
+
+    <meta content="callie — aesthetic discord bot" property="og:title">
+    <meta content="callie is an aesthetic bot mainly focusing on fun and animal-related commands! <3" property="og:description">
+    <meta name="og:image" itemprop="image" content="https://callie.rest/images/pfp_circle.png">
+
+</head>
+<body>
+    <div id="navbar" class="navbar">
+        <div style="display: flex; width: 100%;">
+                <a href="/">
+                    <div id="brand_container">
+                        <p id="nav_text" class="bold">callie <3</p>
+                    </div>
+                </a>
+                <a class="nav_element nav_icon" onclick="mobile_nav_dropdown()"><i class="fa fa-bars"></i></a>
+            </div>
+        <div id="nav_elements" class="nav_elements">
+            <a class="nav_element nav_selected" href="/"><p>home</p></a>
+            <a class="nav_element" href="/help"><p>help</p></a>
+            <a class="nav_element" href="https://canary.discord.com/api/oauth2/authorize?client_id=953858283893035019&permissions=1222656781543&scope=bot%20applications.commands" target="_blank"><p>invite</p></a>
+            <a class="nav_element" href="https://top.gg/bot/953858283893035019/vote" target="_blank"><p>vote</p></a>
+            <!-- <a class="nav_element" href="/projects"><p>projects</p></a>
+            <a class="nav_element" href="/socials"><p>socials</p></a>
+            <a class="nav_element" href="/nowplaying"><p>what i'm listening to</p></a> -->
+        </div>
+    </div>
+    <div id="nav_space"></div>
+    <div id="landing_content">
+        <div style="flex-direction: column;">
+            <h1 style="font-family: Arial, Helvetica, sans-serif;"><a href="https://canary.discord.com/api/oauth2/authorize?client_id=953858283893035019&permissions=1222656781543&scope=bot%20applications.commands" target="_blank" class="shine">callie</a> — an aesthetic bot for all of your cuteness and fun-related needs!</h1>
+            <a href="https://canary.discord.com/api/oauth2/authorize?client_id=953858283893035019&permissions=1222656781543&scope=bot%20applications.commands" target="_blank">
+                <!-- <img src="https://img.shields.io/badge/dynamic/json.svg?label=Servers&style=for-the-badge&url=https://discord.bots.gg/api/v1/bots/953858283893035019&query=$.guildCount&colorB=7289DA&colorA=202225"> -->
+                <img src="https://img.shields.io/badge/dynamic/json.svg?label=Servers&style=for-the-badge&url=https://discord.bots.gg/api/v1/bots/953858283893035019&query=$.guildCount&colorB=7289DA">
+            </a>
+        </div>
+        <img src="images/pfp.webp" class="callie_image minify margin">
+    </div>
+</body>
+<script>
+    // // Wait for the background image to load before fading in the content
+    // window.addEventListener('load', function() {
+    //     document.body.style.transform = 'translateY(0)';
+    //     // document.body.style.visibility = 'visible';
+    // });
+</script>
+<script> document.querySelector(':root').style.setProperty('--mobile_menu_y_offset', document.getElementById('navbar').offsetHeight+'px'); </script>
+<script> function mobile_nav_dropdown() { const navbar = document.getElementById("navbar"); if (navbar.className === "navbar") { navbar.className += " mobile" } else { navbar.className = "navbar" } } </script>

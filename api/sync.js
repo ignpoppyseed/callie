@@ -1,29 +1,74 @@
 const axios = require("axios");
 const fs = require('fs'); 
+const path = require("path");
+// const commands = require('commands.json');
+
+// console.log(commands)
+// console.log(typeof commands)
+
+console.log()
 
 // fs.open('commands.json', 'r', function (err, f) {
 //     console.log(f.read())
 //     commands = f
 // });
 
-var commands
+// function searchFiles(fileName, directory) {
+//     const foundFiles = [];
+  
+//     function traverse(currentDir) {
+//       const files = fs.readdirSync(currentDir);
+  
+//       for (const file of files) {
+//         const filePath = path.join(currentDir, file);
+//         const stat = fs.statSync(filePath);
+  
+//         if (stat.isDirectory()) {
+//           traverse(filePath);
+//         } else if (file === fileName) {
+//           foundFiles.push(filePath);
+//         }
+//       }
+//     }
+  
+//     traverse(directory);
+//     return foundFiles;
+// }
 
-fs.readFile('commands.json', 'utf8', (err, f) => {
-    if (err) {
-        console.error(err);
-        return;
-    }
-    commands = JSON.parse(f)
-});
+// console.log(searchFiles('commands.json', '/'))
 
-function find_index_by_name(input_name, dictionary_list) {
-    for (let i = 0; i < dictionary_list.length; i++) {
-        if (dictionary_list[i].name === input_name) {
-            return i;
-        }
-    }
-    return null;
-}
+// const directoryPath = process.cwd();
+// passsing directoryPath and callback function
+// fs.readdir('/', function (err, files) {
+//     //handling error
+//     if (err) {
+//         return console.log('Unable to scan directory: ' + err);
+//     } 
+//     //listing all files using forEach
+//     files.forEach(function (file) {
+//         // Do whatever you want to do with the file
+//         console.log(file); 
+//     });
+// });
+
+// console.log(process.cwd())
+
+const public_dir = path.join(process.cwd(), 'public');
+const commands = JSON.parse(fs.readFileSync(public_dir + '/commands.json', 'utf8'));
+
+// var commands = fs.readFileSync('./public/commands.json', 'utf8');
+// fs.readFile('./public/commands.json', 'utf8', (err, f) => {
+//     if (err) {
+//         console.error(err);
+//         return;
+//     }
+//     commands = JSON.parse(f)
+//     console.log(f)
+// });
+
+// console.log(commands)
+
+// throw new Error('rahh')
 
 // function check_array_equivalence(arr1, arr2) {
 //     if (arr1 == undefined && arr2 == undefined) { return true; } else if (arr1 == undefined || arr2 == undefined) { return false; }
@@ -38,6 +83,15 @@ function find_index_by_name(input_name, dictionary_list) {
 //     }
 //     return true;
 // }
+
+function find_index_by_name(input_name, dictionary_list) {
+    for (let i = 0; i < dictionary_list.length; i++) {
+        if (dictionary_list[i].name === input_name) {
+            return i;
+        }
+    }
+    return null;
+}
 
 function check_array_equivalence(list1, list2) {
     if (list1 == undefined && list2 == undefined) { return true; } else if (list1 == undefined || list2 == undefined) { return false; }
@@ -127,8 +181,12 @@ module.exports = async (request, response) => {
     
     // console.log()
     // console.log(existing_commands[find_index_by_name("blahaj", existing_commands)])
-    
+
     var commands_to_register = []
+
+    function maybe_push(command) {
+        if (!commands_to_register.includes(command)) { commands_to_register.push(command) }
+    }
 
     for (const command of commands) {
         // console.log(existing_commands[find_index_by_name(command.name, existing_commands)])
@@ -141,37 +199,43 @@ module.exports = async (request, response) => {
         } else {
             // console.log(command.name, 'exists!')
             var ecommand = existing_commands[existing_command_index]
-            if (ecommand.options == command.options) {
-                // does not have options
-                // console.log(false)
-                if (ecommand.name != command.name || ecommand.description != command.description) {
+            if (ecommand.description != command.description) {
                 // COMMAND NEEDS TO BE REGISTERED
-                commands_to_register.push(command)
-                console.log(command.name, 'NEEDS TO BE REGISTERED (local has no opts, fails on cmd name or desc)')
-                }
+                maybe_push(command)
+                console.log(command.name, 'NEEDS TO BE REGISTERED (desc doesnt match)')
             } else {
                 // now check if all options match
+                if (ecommand.options == command.options) {
+                } else {
                 for (let i = 0; i < command.options.length; i++) {
-                    if (!check_array_equivalence(ecommand.options[i].choices, command.options[i].choices)) {
-                        commands_to_register.push(command)
-                        console.log(command.name, 'NEEDS TO BE REGISTERED (choices dont match)')
-                        console.log(JSON.stringify(ecommand.options[i].choices) + ' vs ' + JSON.stringify(command.options[i].choices)) 
-                    } else if (ecommand.options[i].name != command.options[i].name) {
-                        commands_to_register.push(command)
-                        console.log(command.name, 'NEEDS TO BE REGISTERED (name doesnt match)')
-                        console.log(ecommand.options[i].name + ' vs ' + command.options[i].name)
-                    } else if (ecommand.options[i].description != command.options[i].description) {
-                        commands_to_register.push(command)
-                        console.log(command.name, 'NEEDS TO BE REGISTERED (opt description doesnt match)')
-                        console.log(ecommand.options[i].description + ' vs ' + command.options[i].description)
-                    } else if (ecommand.options[i].type != command.options[i].type) {
-                        commands_to_register.push(command)
-                        console.log(command.name, 'NEEDS TO BE REGISTERED (type doesnt match)')
-                        console.log(ecommand.options[i].type + ' vs ' + command.options[i].type)
-                    } else if (ecommand.options[i].required == undefined && command.options[i].required != false) {
-                        commands_to_register.push(command)
-                        console.log(command.name, 'NEEDS TO BE REGISTERED (required doesnt match)')
-                        console.log(ecommand.options[i].required + ' vs ' + command.options[i].required)
+                    try {
+                        if (!check_array_equivalence(ecommand.options[i].choices, command.options[i].choices)) {
+                            maybe_push(command)
+                            console.log(command.name, 'NEEDS TO BE REGISTERED (choices dont match)')
+                            console.log(JSON.stringify(ecommand.options[i].choices) + ' vs ' + JSON.stringify(command.options[i].choices)) 
+                        } else if (ecommand.options[i].name != command.options[i].name) {
+                            maybe_push(command)
+                            console.log(command.name, 'NEEDS TO BE REGISTERED (name doesnt match)')
+                            console.log(ecommand.options[i].name + ' vs ' + command.options[i].name)
+                        } else if (ecommand.options[i].description != command.options[i].description) {
+                            maybe_push(command)
+                            console.log(command.name, 'NEEDS TO BE REGISTERED (opt description doesnt match)')
+                            console.log(ecommand.options[i].description + ' vs ' + command.options[i].description)
+                        } else if (ecommand.options[i].type != command.options[i].type) {
+                            maybe_push(command)
+                            console.log(command.name, 'NEEDS TO BE REGISTERED (type doesnt match)')
+                            console.log(ecommand.options[i].type + ' vs ' + command.options[i].type)
+                        } else if (ecommand.options[i].required == undefined && command.options[i].required != false) {
+                            maybe_push(command)
+                            console.log(command.name, 'NEEDS TO BE REGISTERED (required doesnt match)')
+                            console.log(ecommand.options[i].required + ' vs ' + command.options[i].required)
+                        }
+                    } catch (TypeError) {
+                        maybe_push(command)
+                        await axios.delete('https://discord.com/api/v10/applications/'+ process.env.APPLICATION_ID +'/commands/'+ecommand.id, config)
+                        console.log(command.name, 'NEEDS TO BE REGISTERED (indexes dont match)')
+                        console.log(command.name, '--reducing to viewing full options due to mismatched indexes')
+                        console.log(JSON.stringify(ecommand.options[i]) + ' vs ' + JSON.stringify(command.options[i])) 
                     }
                     // if (!check_array_equivalence(ecommand.options[i].choices, JSON.stringify(command.options[i].choices)) || 
                     // ecommand.options[i].name != command.options[i].name || 
@@ -192,7 +256,7 @@ module.exports = async (request, response) => {
                     //     console.log(command.options[i].choices)
                     //     console.log(`END ${command.name} ATTRIBUTES`)
                     // }
-                }
+                }}
             }
         }
     }
