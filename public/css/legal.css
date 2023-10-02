@@ -1,0 +1,37 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color:azure;
+    background-color: #000000;
+    width: min(100% - 30%);
+    margin-inline: auto;
+}
+.centerDIV {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color:#DBCDC6;
+    background-color: #000000;
+}
+a:link {
+        color: #DBCDC6;
+        text-decoration: underline;
+    }
+    
+    a:visited {
+        color: #DBCDC6;
+        text-decoration: underline;
+    }
+    
+    a:hover {
+        color: #EAD7D1;
+        text-decoration: underline;
+    }
+    
+    a:active {
+        color: #EAD7D1;
+        text-decoration: underline;
+    }
