@@ -15,8 +15,15 @@ const callie_footer_img = 'https://cdn.discordapp.com/attachments/11289344352119
 const discord_api_root_url = 'https://discord.com/api/v10'
 const axois_config = { headers: { Authorization: 'Bot '+process.env.TOKEN, }};
 
+//https://cdn.discordapp.com/icons/1097283105192149034/11ab731349ad42cedd546825e62226e0.png?size=1024
+
 Array.prototype.random = function () {
     return this[Math.floor((Math.random()*this.length))];
+}
+
+Object.prototype.avatar_url = function () {
+    try {return `https://cdn.discordapp.com/avatars/${this.member.user.id}/${this.member.user.avatar}.png?size=1024`}
+    catch (TypeError) {return undefined}
 }
 
 function get_random_int(min, max) {
@@ -26,6 +33,9 @@ function get_random_int(min, max) {
 }
 
 function convert_options(list) {
+    if (list == undefined) {
+        return {}
+    }
     return list.reduce((result, item) => {
         result[item.name] = item.value;
         return result;
@@ -68,6 +78,22 @@ async function send_followup(interaction_token) {
     return
 }
 
+async function get_servers() {
+    var count
+    await axios('https://discord.com/api/v10/users/@me/guilds', {headers: { Authorization: 'Bot '+process.env.TOKEN }})
+    .then( async (d_raw_response) => {
+        if (Array.isArray(d_raw_response.data)) {
+            count = d_raw_response.data
+        } else {
+            count = undefined
+        }
+    }).catch( async (error) => {
+        console.log(error)
+        count = undefined
+    })
+    return count
+}
+
 async function SRA(endpoint, args={}) {
     var parsed_args = convert_dict_to_query(args)
     var sra_response
@@ -104,6 +130,24 @@ async function SRA_canvas(endpoint, args={}) {
     })
     return sra_response
     // return 'https://some-random-api.com/canvas/'+endpoint+'?'+parsed_args
+}
+
+async function neko(endpoint, args={}) {
+    var parsed_args = convert_dict_to_query(args)
+    console.log(parsed_args)
+    var neko_response
+    await axios('https://nekobot.xyz/api/'+endpoint+'?'+parsed_args, {timeout: 1200})
+    .then( async (raw_res) => {
+        neko_response = raw_res.data
+    }).catch( async (error) => {
+        if (error.code === 'ECONNABORTED') {
+            neko_response = {'error': 'request timed out. because of discord, this is almost unavoidable. https://github.com/discord/discord-api-docs/issues/2389'}
+        } else {
+            neko_response = error.response.data
+        }
+        // console.log(sra_response)
+    })
+    return neko_response
 }
 
 function convert_dict_to_query(dictionary) {
@@ -211,29 +255,6 @@ module.exports = async (request, response) => {
                 console.log('help')
                 response.status(200).send({
                     type: 4,
-                    // data: {
-                    //     "content": "cuntent",
-                    //     "embeds": [
-                    //       {
-                    //         "title": "title",
-                    //         "description": "desc",
-                    //         "color": 5814783,
-                    //         "fields": [
-                    //           {
-                    //             "name": "f1",
-                    //             "value": "fv"
-                    //           }
-                    //         ],
-                    //         "author": {
-                    //           "name": "auth"
-                    //         },
-                    //         "footer": {
-                    //           "text": "foot"
-                    //         }
-                    //       }
-                    //     ],
-                    //     "attachments": []
-                    // }
                     data: {
                         "content": null,
                         "embeds": [
@@ -261,6 +282,16 @@ module.exports = async (request, response) => {
                                     "name": "callie",
                                     "value": "- </help:1128959988426096721>\n- </credits:1128959988329615441>\n- </invite:1128959988296069170>\n- </website:1132579034908336148>",
                                     "inline": true
+                                },
+                                {
+                                    "name": "images",
+                                    "value": "- </emo:1133908367358820352>",
+                                    "inline": true
+                                },
+                                {
+                                    "name": "links",
+                                    "value": "- [website](https://callie.rest/help)\n- [support server](https://discord.gg/FXZATmh8zN)",
+                                    "inline": true
                                 }
                                 ],
                                 "footer": {
@@ -269,7 +300,7 @@ module.exports = async (request, response) => {
                                 },
                                 "timestamp": `${new Date().toISOString()}`,
                                 "image": {
-                                "url": "https://cdn.discordapp.com/attachments/1128934435211976865/1128934865224605838/banner.png"
+                                    "url": "https://cdn.discordapp.com/attachments/1128934435211976865/1128934865224605838/banner.png"
                                 }
                             }
                         ],
@@ -723,6 +754,136 @@ module.exports = async (request, response) => {
                     }
                 });
                 break;
+
+            // https://some-random-api.com/canvas/filter/greyscale?avatar=
+            // https://nekobot.xyz/api/imagegen?type=magik&image=
+            // https://nekobot.xyz/api/imagegen?type=threats&url=
+            // https://nekobot.xyz/api/imagegen?type=trash&url=
+            case 'distort':
+                // console.log('distort')
+                // var options = convert_options(message.data.options)
+                // var avatar
+                // if (options.avatar == undefined) { avatar = message.member.user }
+                // else { avatar = Object.values(message.data.resolved.users)[0] }
+                // if (avatar.avatar == null) { avatar = `https://cdn.discordapp.com/embed/avatars/${parseInt(avatar.discriminator)%5}.png` }
+                // else { avatar = `https://cdn.discordapp.com/avatars/${avatar.id}/${avatar.avatar}.png?size=1024` }
+                // var nekodata = await neko('imagegen', {
+                //     type: 'magik',
+                //     image: avatar
+                // })
+                // console.log(nekodata)
+                // console.log(nekodata.error)
+                // if (nekodata.error != undefined) {
+                //     response.status(200).send({
+                //         type: 4,
+                //         data: {
+                //             "content": null,
+                //             "embeds": [
+                //                 {
+                //                     "description": `***something went wrong while distorting the avatar </3***\nerror:\`\`\`${nekodata.error}\`\`\``,
+                //                     "color": callie_color,
+                //                     "footer": {
+                //                         "text": "callie <3",
+                //                         "icon_url": callie_footer_img
+                //                     },
+                //                     "timestamp": `${new Date().toISOString()}`
+                //                 }
+                //             ],
+                //             "attachments": []
+                //         }
+                //     });
+                // } else {response.status(200).send({
+                //     type: 4,
+                //     data: {
+                //         "content": null,
+                //         "embeds": [
+                //             {
+                //                 "description": `***r̶͖̒̈̈́͘a̷̪̖͙͒͆͗ḩ̸͔̋̍̈̋h̷̥̗͛h̸̘̄͗̆̿h̷͚̳̿̀! <3***`,
+                //                 "color": callie_color,
+                //                 "image": {
+                //                     "url": nekodata.message
+                //                 },
+                //                 "footer": {
+                //                     "text": "callie <3",
+                //                     "icon_url": callie_footer_img
+                //                 },
+                //                 "timestamp": `${new Date().toISOString()}`
+                //             }
+                //         ],
+                //         "attachments": []
+                //     }
+                // });
+                // return
+                    
+                // }
+                // break;
+                // response.status(200).send({
+                //     type: 2
+                // });
+                // break;
+                // {
+                //     "name": "intensity",
+                //     "description": "the intensity of the distortion",
+                //     "type": 4,
+                //     "required": false,
+                //     "min_value": 1,
+                //     "max_value": 10
+                // }
+            case 'emo':
+                console.log('emo')
+                var options = convert_options(message.data.options)
+                var avatar
+                if (options.avatar == undefined) { avatar = message.member.user }
+                else { avatar = Object.values(message.data.resolved.users)[0] }
+                if (avatar.avatar == null) { avatar = `https://cdn.discordapp.com/embed/avatars/${parseInt(avatar.discriminator)%5}.png` }
+                else { avatar = `https://cdn.discordapp.com/avatars/${avatar.id}/${avatar.avatar}.png?size=1024` }
+                var somedata = await SRA_canvas('filter/greyscale', {
+                    avatar: avatar
+                })
+                console.log(somedata)
+                if (somedata.image != undefined) {
+                    response.status(200).send({
+                        type: 4,
+                        data: {
+                            "content": null,
+                            "embeds": [
+                                {
+                                    "description": `***🎶 crawling in my skin 🎶 <3***`,
+                                    "color": callie_color,
+                                    "image": {
+                                        "url": somedata.image
+                                    },
+                                    "footer": {
+                                        "text": "callie <3",
+                                        "icon_url": callie_footer_img
+                                    },
+                                    "timestamp": `${new Date().toISOString()}`
+                                }
+                            ],
+                            "attachments": []
+                        }
+                    });
+                } else {
+                    response.status(200).send({
+                        type: 4,
+                        data: {
+                            "content": null,
+                            "embeds": [
+                                {
+                                    "description": `***something went wrong while emo-ifying the avatar </3***\nerror:\`\`\`${somedata.error}\`\`\``,
+                                    "color": callie_color,
+                                    "footer": {
+                                        "text": "callie <3",
+                                        "icon_url": callie_footer_img
+                                    },
+                                    "timestamp": `${new Date().toISOString()}`,
+                                }
+                            ],
+                            "attachments": []
+                        }
+                    });
+                }
+                break
             case 'tweet':
                 console.log('tweet')
                 var options = convert_options(message.data.options)
@@ -865,6 +1026,115 @@ module.exports = async (request, response) => {
                         "attachments": []
                     }
                 });
+                break;
+            case 'debug':
+                console.log('debug')
+                var options = convert_options(message.data.options)
+                console.log(options)
+                if (message.member.user.id != poppy_id) {
+                    response.status(200).send({
+                        type: 4,
+                        data: {
+                            "content": null,
+                            "embeds": [
+                                {
+                                    "description": `***debug menu <3***\nhey! you're not poppy!!!`,
+                                    "color": callie_color,
+                                    "footer": {
+                                        "text": "callie <3",
+                                        "icon_url": callie_footer_img
+                                    },
+                                    "timestamp": `${new Date().toISOString()}`
+                                }
+                            ],
+                            "attachments": []
+                        }
+                    });
+                    return
+                }
+                if (options.command == 'servers') {
+                    var guilds = await get_servers()
+
+                    var guild_names = []
+
+                    for (var guild of guilds) {
+                        guild_names.push(guild.name)
+                    }
+
+                    response.status(200).send({
+                        type: 4,
+                        data: {
+                            "content": null,
+                            "embeds": [
+                                {
+                                    "description": `***server list <3***\n**total: ${guilds.length}**\n*servers:*\`\`\`${guild_names.join('\n')}\`\`\``,
+                                    "color": callie_color,
+                                    "footer": {
+                                        "text": "callie <3",
+                                        "icon_url": callie_footer_img
+                                    },
+                                    "timestamp": `${new Date().toISOString()}`
+                                }
+                            ],
+                            "attachments": []
+                        }
+                    });
+                } else if (options.command == 'updatestats') {
+                    var request_url
+                    if (request.headers['cf-visitor'] == undefined) { 
+                        request_url = 'http://'+request.headers.host
+                    } else {
+                        request_url = JSON.parse(request.headers['cf-visitor']).scheme+'://'+request.headers.host
+                    }
+                    var new_url = `${request_url}/api/updateserverstats?auth=${process.env.FAKEOUT_TOKEN}`
+                    console.log(new_url)
+                    await axios(`${new_url}`)
+                    .then( async (d_raw_response) => {
+                        console.log(`done`)
+                        console.log(d_raw_response)
+                    }).catch( async (error) => {
+                        console.log('THREW ERROR, POPPY NEEDS TO LOOK INTO THIS')
+                        console.log(error)
+                    })
+
+                    response.status(200).send({
+                        type: 4,
+                        data: {
+                            "content": null,
+                            "embeds": [
+                                {
+                                    "description": `done`,
+                                    "color": callie_color,
+                                    "footer": {
+                                        "text": "callie <3",
+                                        "icon_url": callie_footer_img
+                                    },
+                                    "timestamp": `${new Date().toISOString()}`
+                                }
+                            ],
+                            "attachments": []
+                        }
+                    });
+                } else {
+                    response.status(200).send({
+                        type: 4,
+                        data: {
+                            "content": null,
+                            "embeds": [
+                                {
+                                    "description": `***debug menu <3***\ncmds\n- servers\n- updatestats`,
+                                    "color": callie_color,
+                                    "footer": {
+                                        "text": "callie <3",
+                                        "icon_url": callie_footer_img
+                                    },
+                                    "timestamp": `${new Date().toISOString()}`
+                                }
+                            ],
+                            "attachments": []
+                        }
+                    });
+                }
                 break;
             // case 'poll':
                 // console.log('poll')

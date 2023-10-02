@@ -65,6 +65,32 @@
         "description": "random panda image <3"
     },
     {
+        "name": "emo",
+        "type": 1, 
+        "description": "make an avatar emo <3",
+        "options": [
+            {
+                "name": "avatar",
+                "description": "the user to use the avatar of",
+                "type": 6,
+                "required": false
+            }
+        ]
+    },
+    {
+        "name": "debug",
+        "type": 1,
+        "description": "poppy's debugging command (bot owner only) <3",
+        "options": [
+            {
+                "name": "command",
+                "description": "the debug command to execute",
+                "type": 3,
+                "required": true
+            }
+        ]
+    },
+    {
         "name": "avatar",
         "type": 1,
         "description": "fetch a user's avatar <3",

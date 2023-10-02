@@ -64,6 +64,19 @@ module.exports = async (request, response) => {
         response.status(201).send({ status: "done", error: errors }); 
         // response.status(201).send({ status: "done", error: stats }); 
 
+        await axios.post(`https://spider.infinitybots.gg/bots/stats`, {servers: guild_count}, {headers: { Authorization: process.env.INFINITY_BOTS_API }})
+        .then( async (d_raw_response) => {
+            console.log(`done`)
+            discord_response = d_raw_response.data
+            console.log(discord_response)
+            errors.push({name: '', error: false, status: 'success', response: discord_response, axios_error: '', request_type: 'single'})
+        }).catch( async (error) => {
+            console.log('THREW ERROR, POPPY NEEDS TO LOOK INTO THIS')
+            console.log(error)
+            errors.push({name: '', error: true, status: 'failed', response: discord_response, axios_error: error, request_type: 'single'})
+        })
+        response.status(201).send({ status: "done", error: errors }); 
+
         return
     } else if (process.env.TOKEN != request.query.auth && request.query.auth != undefined && request.query.auth != null) {
         response.status(401).send({ status: "failed", error: "auth was found but was invalid :<" }); 
